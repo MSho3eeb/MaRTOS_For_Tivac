@@ -10,6 +10,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./Cortex_OS_Porting.obj" \
 "./MaRTOS.obj" \
 "./RTOS_FIFO.obj" \
 "./Scheduler.obj" \
@@ -158,8 +159,8 @@ MaRTOS.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "MaRTOS.obj" "RTOS_FIFO.obj" "Scheduler.obj" "main.obj" "tm4c123gh6pm_startup_ccs.obj" 
-	-$(RM) "MaRTOS.d" "RTOS_FIFO.d" "Scheduler.d" "main.d" "tm4c123gh6pm_startup_ccs.d" 
+	-$(RM) "Cortex_OS_Porting.obj" "MaRTOS.obj" "RTOS_FIFO.obj" "Scheduler.obj" "main.obj" "tm4c123gh6pm_startup_ccs.obj" 
+	-$(RM) "Cortex_OS_Porting.d" "MaRTOS.d" "RTOS_FIFO.d" "Scheduler.d" "main.d" "tm4c123gh6pm_startup_ccs.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

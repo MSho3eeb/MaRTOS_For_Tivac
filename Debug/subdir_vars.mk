@@ -9,6 +9,7 @@ CMD_SRCS += \
 ../tm4c123gh6pm.cmd 
 
 C_SRCS += \
+../Cortex_OS_Porting.c \
 ../MaRTOS.c \
 ../RTOS_FIFO.c \
 ../Scheduler.c \
@@ -16,6 +17,7 @@ C_SRCS += \
 ../tm4c123gh6pm_startup_ccs.c 
 
 C_DEPS += \
+./Cortex_OS_Porting.d \
 ./MaRTOS.d \
 ./RTOS_FIFO.d \
 ./Scheduler.d \
@@ -23,6 +25,7 @@ C_DEPS += \
 ./tm4c123gh6pm_startup_ccs.d 
 
 OBJS += \
+./Cortex_OS_Porting.obj \
 ./MaRTOS.obj \
 ./RTOS_FIFO.obj \
 ./Scheduler.obj \
@@ -30,6 +33,7 @@ OBJS += \
 ./tm4c123gh6pm_startup_ccs.obj 
 
 OBJS__QUOTED += \
+"Cortex_OS_Porting.obj" \
 "MaRTOS.obj" \
 "RTOS_FIFO.obj" \
 "Scheduler.obj" \
@@ -37,6 +41,7 @@ OBJS__QUOTED += \
 "tm4c123gh6pm_startup_ccs.obj" 
 
 C_DEPS__QUOTED += \
+"Cortex_OS_Porting.d" \
 "MaRTOS.d" \
 "RTOS_FIFO.d" \
 "Scheduler.d" \
@@ -44,6 +49,7 @@ C_DEPS__QUOTED += \
 "tm4c123gh6pm_startup_ccs.d" 
 
 C_SRCS__QUOTED += \
+"../Cortex_OS_Porting.c" \
 "../MaRTOS.c" \
 "../RTOS_FIFO.c" \
 "../Scheduler.c" \

@@ -1,3 +1,4 @@
+"./Cortex_OS_Porting.obj"
 "./MaRTOS.obj"
 "./RTOS_FIFO.obj"
 "./Scheduler.obj"

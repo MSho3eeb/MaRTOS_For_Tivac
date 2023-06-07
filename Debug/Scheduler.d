@@ -4,6 +4,7 @@ Scheduler.obj: ../Scheduler.c
 Scheduler.obj: ../Scheduler.h
 Scheduler.obj: ../SchedulerTypes.h
 Scheduler.obj: ../types.h
+Scheduler.obj: ../MaRTOS_Config.h
 Scheduler.obj: ../RTOS_FIFO.h
 Scheduler.obj: C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdint.h
 Scheduler.obj: C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/_ti_config.h
@@ -23,6 +24,8 @@ Scheduler.obj: C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sy
 ../SchedulerTypes.h:
 
 ../types.h:
+
+../MaRTOS_Config.h:
 
 ../RTOS_FIFO.h:
 

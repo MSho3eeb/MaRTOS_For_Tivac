@@ -6,16 +6,12 @@
 #include "types.h"
 
 
-typedef struct task{
-    void(*TaskPtr)(void);
-    uint32 priority;
-    struct task* Next;
-}TaskToFIFO;
-
 typedef struct{
-    TaskToFIFO* head;
-    TaskToFIFO* tail;
-    uint32 TasksNum;
+    uint32 counter;
+    TaskType** head;
+    TaskType** tail;
+    TaskType** base;
+    uint32 length;
 }FIFOType;
 
 typedef enum{
@@ -26,10 +22,10 @@ typedef enum{
 }BufferStatusType;
 
 
-BufferStatusType FIFO_Init(void);
-BufferStatusType FIFO_Add(TaskToFIFO* task);
-TaskToFIFO* FIFO_Get(void);
-TaskToFIFO* FIFO_Peek(void);
+BufferStatusType FIFO_Init(FIFOType* fifo, TaskType** buff, uint32 length);
+BufferStatusType FIFO_Add(TaskType* task);
+TaskType* FIFO_Get(void);
+TaskType* FIFO_Peek(void);
 uint8 FIFO_IsEmpty(void);
 uint32 FIFO_TasksCount(void);
 

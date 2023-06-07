@@ -15,6 +15,7 @@ RTOS_FIFO.obj: C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sy
 RTOS_FIFO.obj: ../Scheduler.h
 RTOS_FIFO.obj: ../SchedulerTypes.h
 RTOS_FIFO.obj: ../types.h
+RTOS_FIFO.obj: ../MaRTOS_Config.h
 
 ../RTOS_FIFO.c:
 
@@ -45,4 +46,6 @@ C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 ../SchedulerTypes.h:
 
 ../types.h:
+
+../MaRTOS_Config.h:
 
