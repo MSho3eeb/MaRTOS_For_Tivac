@@ -16,6 +16,7 @@ struct{
     uint32 NoOfActiveTasks;
     TaskType* CurrentTask;
     TaskType* NextTask;
+		TaskType* AfterNextTask;
     enum{
         OSSuspend = 0,
         OSRunnig
@@ -34,32 +35,35 @@ void RTOS_IDLE(void){
 				__asm(" wfe");
     }
 }
-void RTOS_IDLE1(void){
-    while(1){
-        OS_Control.NextTask = &RTOS_IdleTask;
-				__asm(" wfe");
-    }
-}
+
 
 void RTOS_Create_MainStack(void){
-    OS_Control._E_MSP_TASK = (uint32)0x20000400; //&
-    OS_Control._S_MSP_TASK = OS_Control._E_MSP_TASK + MAINSTACKSIZE;
-    OS_Control.PSP_Task_Locator = (OS_Control._E_MSP_TASK - 8);
+    OS_Control._E_MSP_TASK = (uint32)0x20008000; //&
+    OS_Control._S_MSP_TASK = OS_Control._E_MSP_TASK - MAINSTACKSIZE;
+    OS_Control.PSP_Task_Locator = (OS_Control._S_MSP_TASK + 8);
 }
+
+void MTaskCreate(TaskType* Task, void(*ptr)(void) ,uint8 Prioirity, uint32 StackSize, uint8 Name[]){
+	Task->TaskEntry_Ptr = ptr;
+	Task->Priority = Prioirity;
+	Task->StackSize = StackSize;
+	strcpy(Task->TaskName, Name);
+	RTOS_CreateTask(Task);
+}
+
 void STARTOS(){
+		SORT();
 		FIFO_Init(&ReadyQueue, ReadyQueueFIFO, MAXTASKS);
     OS_Control.OSMODE = OSRunnig;
     OS_Control.CurrentTask = &RTOS_IdleTask;
-		OS_Control.NextTask = &RTOS_IdleTask1;
     RTOS_ActivateTask(&RTOS_IdleTask);
 
     Start_Ticker();
 		OS_Control.CurrentTask->Current_PSP = OS_Control.CurrentTask->Current_PSP;
 		OS_SET_PSP(OS_Control.CurrentTask->Current_PSP);
 		OS_SP_TO_PSP;
-		OS_UNPRIVILIGE;
-		RTOS_IdleTask.TaskEntry_Ptr();
-
+		OS_PRIVILIGE;
+		OS_Control.CurrentTask->TaskEntry_Ptr();
 }
 
 
@@ -67,16 +71,12 @@ RTOS_ErrorIDType RTOS_Init(void){
     HW_Init();
     OS_Control.OSMODE = OSSuspend;
 	  RTOS_Create_MainStack();
-    RTOS_IdleTask.Priority = 255;
+	#if IDLE==1 
+    RTOS_IdleTask.Priority = 250;
     RTOS_IdleTask.TaskEntry_Ptr = RTOS_IDLE;
-    RTOS_IdleTask.StackSize = 300;
-		RTOS_IdleTask1.Priority = 255;
-    RTOS_IdleTask1.TaskEntry_Ptr = RTOS_IDLE1;
-    RTOS_IdleTask1.StackSize = 300;
-
+    RTOS_IdleTask.StackSize = 128;
     RTOS_CreateTask(&RTOS_IdleTask);
-		RTOS_CreateTask(&RTOS_IdleTask1);
-
+	#endif
     return OK;
 }
 
@@ -110,9 +110,10 @@ RTOS_ErrorIDType RTOS_CreateTask(TaskType* Task){
     OS_Control.OSTasks[OS_Control.NoOfActiveTasks] = Task;
     OS_Control.NoOfActiveTasks++;
 
-    Task->TaskState = Suspend;
+    Task->TaskState = Init;
 
     TaskCount++;
+	
     return OK;
 }
 
@@ -132,6 +133,19 @@ void SORT(void){
     }
 }
 
+void DecrementTicks(void){
+	uint32 index = 0;
+	uint32 TasksNumber = OS_Control.NoOfActiveTasks;
+	for(index = 0; index < TasksNumber; index++){
+		if(OS_Control.OSTasks[index]->TimingWaiting.Blocking == Enable){
+			OS_Control.OSTasks[index]->TimingWaiting.TicksCount--;
+			if(OS_Control.OSTasks[index]->TimingWaiting.TicksCount == 0){
+				OS_Control.OSTasks[index]->TimingWaiting.Blocking = Disable;
+			}
+		}
+	}
+}
+
 void RTOS_Update_Schedule_Tables(void){
     TaskType* temp = NULL;
     TaskType* TaskPtr;
@@ -142,38 +156,30 @@ void RTOS_Update_Schedule_Tables(void){
 
     while(FIFO_Get() != NULL);
 
-    while(i<OS_Control.NoOfActiveTasks){
+    for(i = 0; i < OS_Control.NoOfActiveTasks;i++){
         TaskPtr = OS_Control.OSTasks[i];
         NextTaskPtr = OS_Control.OSTasks[i+1];
-        if(TaskPtr->TaskState != Suspend){
-            if(NextTaskPtr->TaskState == Suspend){
-                FIFO_Add(TaskPtr);
-                TaskPtr->TaskState = Ready;
-                break;
-            }
-            if(TaskPtr->Priority < NextTaskPtr->Priority){
-                FIFO_Add(TaskPtr);
-                TaskPtr->TaskState = Ready;
-                break;
-            }else if(TaskPtr->Priority == NextTaskPtr->Priority){
-                FIFO_Add(TaskPtr);
-                TaskPtr->TaskState = Ready;
-            }else if(TaskPtr->Priority > NextTaskPtr->Priority){
-                break;
-            }
+				if(TaskPtr->TimingWaiting.Blocking == Enable){
+					TaskPtr->TimingWaiting.TicksCount--;
+					if(TaskPtr->TimingWaiting.TicksCount == 0){
+						TaskPtr->TimingWaiting.Blocking = Disable;
+					}
+				}else if(TaskPtr->TaskState != Suspend){
+						FIFO_Add(TaskPtr);
+            TaskPtr->TaskState = Ready;
         }
-        i++;
     }
-
 }
 
 void WhatIsNext(void){
     if((ReadyQueue.counter == 0) && (OS_Control.CurrentTask->TaskState != Suspend)){
         OS_Control.CurrentTask->TaskState = Running;
-        FIFO_Add(OS_Control.CurrentTask);
+        //FIFO_Add(OS_Control.CurrentTask);
         OS_Control.NextTask = OS_Control.CurrentTask;
     }else{
         OS_Control.NextTask = FIFO_Get();
+				OS_Control.AfterNextTask = FIFO_Peek();
+			
         OS_Control.NextTask->TaskState = Running;
         if((OS_Control.CurrentTask->Priority == OS_Control.NextTask->Priority) && (OS_Control.CurrentTask->TaskState != Suspend)){
             FIFO_Add(OS_Control.CurrentTask);
@@ -187,7 +193,6 @@ void OS_SVC(int* StackFrame){
 }
 
 void RTOS_ActivateTask(TaskType* Task){
-    FIFO_Add(Task);
     Task->TaskState = Ready;
 }
 void RTOS_TerminateTask(TaskType* Task){
@@ -197,6 +202,9 @@ void RTOS_TaskWait(uint32 TicksNumber, TaskType* Task){
     Task->TaskState = Waiting;
     Task->TimingWaiting.TicksCount = TicksNumber;
     Task->TimingWaiting.Blocking = Enable;
+		while(Task->TimingWaiting.Blocking == Enable){
+			
+		}
 }
 
 //RTOS_ErrorIDType RTOS_AquireMutex(MutexType* Mutex, TaskType* Task){
@@ -209,6 +217,7 @@ void RTOS_TaskWait(uint32 TicksNumber, TaskType* Task){
 void PendSV_Handler(void){
 	RTOS_Update_Schedule_Tables();
 	WhatIsNext();
+	
 	OS_GET_PSP(OS_Control.CurrentTask->Current_PSP);
 	
 	OS_Control.CurrentTask->Current_PSP--;
@@ -241,7 +250,6 @@ void PendSV_Handler(void){
 		OS_Control.CurrentTask = OS_Control.NextTask;
 		OS_Control.NextTask = NULL;
 	}
-	
 	__asm volatile(" mov r11, %0" : : "r"(*(OS_Control.CurrentTask->Current_PSP)));
 	OS_Control.CurrentTask->Current_PSP++;
 	

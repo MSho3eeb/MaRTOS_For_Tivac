@@ -2,12 +2,13 @@
 
 static FIFOType* RTOS_FIFO;
 
+
 BufferStatusType FIFO_Init(FIFOType* fifo, TaskType** buff, uint32 length){
     RTOS_FIFO = fifo;
     if(buff == NULL){
         return Null;
     }
-
+	
     RTOS_FIFO->base = buff;
     RTOS_FIFO->head = fifo->base;
     RTOS_FIFO->tail = fifo->base;
@@ -41,11 +42,14 @@ TaskType* FIFO_Get(void){
         return NULL;
     }
     task = *(RTOS_FIFO->head);
-    RTOS_FIFO->counter--;
-    RTOS_FIFO->head++;
-
+		RTOS_FIFO->counter--;
+		uint32 index;
+		for(index = 0; index < RTOS_FIFO->counter ;index++){
+			RTOS_FIFO->base[index] = RTOS_FIFO->base[index+1];
+			RTOS_FIFO->base[index+1] = NULL;
+		}
+		RTOS_FIFO->tail--;
     return task;
-
 }
 TaskType* FIFO_Peek(void){
     return *(RTOS_FIFO->head);

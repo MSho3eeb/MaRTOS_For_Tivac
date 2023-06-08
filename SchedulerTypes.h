@@ -12,7 +12,8 @@ typedef enum{
 }RTOS_ErrorIDType;
 
 typedef enum{
-    Suspend = 0,
+		Init = 0,
+    Suspend,
     Running,
     Waiting,
     Ready
@@ -31,6 +32,7 @@ typedef struct{
 typedef struct{
     uint32 StackSize;
     uint8  Priority;
+		uint8  OrigiPriority;
     void (*TaskEntry_Ptr)(void); // function pointer
     uint8  autoStart;
     uint32 _S_PSP_Task;

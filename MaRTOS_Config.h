@@ -7,4 +7,6 @@
 
 #define MAINSTACKSIZE   3072
 
+#define IDLE 1
+
 #endif /*MARTOS_CONFIG_H__*/
