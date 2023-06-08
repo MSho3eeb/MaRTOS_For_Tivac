@@ -2,9 +2,8 @@
 #define SCHEDULER_H__
 
 #include "SchedulerTypes.h"
-#include "MaRTOS_Config.h"
 
-void STARTOS();
+
 
 
 

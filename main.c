@@ -1,4 +1,5 @@
 #include "MaRTOS.h"
+#include "tm4c123gh6pm.h"
 
 TaskType TASK1;
 TaskType TASK2;
@@ -14,7 +15,9 @@ void task2(void){
 }
 
 int main(void)
-{
+	{
+
+
     TaskType TASK1;
     TaskType TASK2;
 
@@ -30,5 +33,13 @@ int main(void)
     RTOS_CreateTask(&TASK1);
     RTOS_CreateTask(&TASK2);
 
+    STARTOS();
+
+    while(1){
+
+    }
+
 	return 0;
 }
+
+

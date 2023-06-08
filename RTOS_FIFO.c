@@ -1,6 +1,6 @@
 #include "RTOS_FIFO.h"
 
-FIFOType* RTOS_FIFO;
+static FIFOType* RTOS_FIFO;
 
 BufferStatusType FIFO_Init(FIFOType* fifo, TaskType** buff, uint32 length){
     RTOS_FIFO = fifo;

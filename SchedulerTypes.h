@@ -2,6 +2,7 @@
 #define SCHEDULERTYPES_H__
 
 #include "types.h"
+#include "tm4c123gh6pm.h"
 
 typedef enum{
     OK = 0,

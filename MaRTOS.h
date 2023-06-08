@@ -3,6 +3,12 @@
 
 #include "Scheduler.h"
 #include "RTOS_FIFO.h"
+#include "MaRTOS_Config.h"
+#include "Cortex_OS_Porting.h"
+
+
+
+void STARTOS();
 
 RTOS_ErrorIDType RTOS_Init(void);
 RTOS_ErrorIDType RTOS_CreateTask(TaskType* Task);

@@ -33,6 +33,13 @@ void ResetISR(void);
 static void NmiSR(void);
 static void FaultISR(void);
 static void IntDefaultHandler(void);
+extern void PendSV(void);
+extern __attribute ((naked)) void SVC_Handler();
+extern void HardFault_Handler(void);
+extern void MemManage_Handler(void);
+extern void BusFault_Handler(void);
+extern void UsageFault_Handler(void);
+extern void Systick_Handler(void);
 
 //*****************************************************************************
 //
@@ -72,17 +79,17 @@ void (* const g_pfnVectors[])(void) =
     NmiSR,                                  // The NMI handler
     FaultISR,                               // The hard fault handler
     IntDefaultHandler,                      // The MPU fault handler
-    IntDefaultHandler,                      // The bus fault handler
-    IntDefaultHandler,                      // The usage fault handler
+    BusFault_Handler,                       // The bus fault handler
+    UsageFault_Handler,                     // The usage fault handler
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
-    IntDefaultHandler,                      // SVCall handler
+    SVC_Handler,                            // SVCall handler
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
-    IntDefaultHandler,                      // The PendSV handler
-    IntDefaultHandler,                      // The SysTick handler
+    PendSV,                                 // The PendSV handler
+    Systick_Handler,                        // The SysTick handler
     IntDefaultHandler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C
